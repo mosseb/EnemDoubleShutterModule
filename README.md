@@ -1,2 +1,2 @@
 # EnemDoubleShutterModule
-Homie module for a double non smart shutter using up/down/stop non smart buttons
+Nodemcu/Homie module for dealing with 1 or 2 shutters with EnemButtons
