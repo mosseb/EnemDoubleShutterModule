@@ -1,29 +1,33 @@
 #include <Homie.h>
-#include <EEPROM.h>
+#include <Shutters.h>
 
 #include <EnemDoubleButton.hpp>
-#include <EnemShutter.hpp>
 
-const int TRANSMIT_INTERVAL = 1;
+//const int TRANSMIT_INTERVAL = 1;
 const int PIN_UP = D1;
 const int PIN_DOWN = D2;
-const int PIN_SHUTTER1_UPDOWN = D3;
-const int PIN_SHUTTER1_PROCESS = D4;
-const int SHUTTER1_UPCOURSETIME_SEC = 15;
-const int SHUTTER1_DOWNCOURSETIME_SEC = 10;
+//const int PIN_SHUTTER1_UPDOWN = D3;
+//const int PIN_SHUTTER1_PROCESS = D4;
+//const int SHUTTER1_UPCOURSETIME_SEC = 15;
+//const int SHUTTER1_DOWNCOURSETIME_SEC = 10;
 
-unsigned long lastTransmit = 0;
-bool sensorOpenState = false;
+//unsigned long lastTransmit = 0;
+//bool sensorOpenState = false;
 
 EnemDoubleButton button = EnemDoubleButton(PIN_UP, PIN_DOWN, 60, 100, 1000);
-EnemShutter shutter = EnemShutter(PIN_SHUTTER1_UPDOWN, PIN_SHUTTER1_PROCESS, button, SHUTTER1_UPCOURSETIME_SEC, SHUTTER1_DOWNCOURSETIME_SEC, 0.1);
 
 bool lastUpState = false;
 bool lastDownState = false;
 bool lastStopState = false;
 bool lastDoubleState = false;
 
-HomieNode garageOpenNode("sensorOpen", "booleanState");
+HomieNode volet1Node("volet1", "volet");
+
+bool volet1PositionHandler(const HomieRange& range, const String& value)
+{
+  Homie.getLogger() << "volet1PositionHandler" << endl;
+  return true;
+}
 
 void loopHandler() {
   bool upState = button.isUpPressed();
@@ -33,8 +37,9 @@ void loopHandler() {
 
   if(upState != lastUpState || downState != lastDownState || stopState != lastStopState || doubleState != lastDoubleState)
   {
-    Serial.println(String(String(millis()) + ": up[" + String(upState) + "] - down[" + String(downState) + "] - stop[" + String(stopState) + "] - double[" + String(doubleState) + "]"));
-
+    Homie.getLogger() << millis() << ": up[" << upState << "] - down[" << downState << "] - stop[" << stopState
+      << "] - double[" << doubleState << "]";
+/*
     if(upState && !lastUpState)
     {
       shutter.setLevel(0);
@@ -49,7 +54,7 @@ void loopHandler() {
     {
       shutter.stop();
     }
-
+*/
     lastUpState = upState;
     lastDownState = downState;
     lastStopState = stopState;
@@ -60,21 +65,19 @@ void loopHandler() {
 void setup() {
   Serial.begin(115200);
 
-  Homie.setFirmware("garage", "1.0.0");
-  Homie.registerNode(garageOpenNode);
+  Homie_setFirmware("volet", "1.0.2");
   Homie.setLoopFunction(loopHandler);
   Homie.setup();
 
+  volet1Node.advertise("state");
+  volet1Node.advertise("position").settable(volet1PositionHandler);
+
   button.setup();
 
-  shutter.setup();
-
-  //Init first time values
-  lastUpState = button.isUpPressed();
-  lastDownState = button.isDownPressed();
+  //shutter.setup();
 }
 
 void loop() {
-  shutter.loop();
+  button.loop();
   Homie.loop();
 }

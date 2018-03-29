@@ -14,9 +14,6 @@ void EnemDoubleButton::setup()
   pinMode(pinDown, INPUT_PULLUP);
   downDebouncer.attach(pinDown);
   downDebouncer.interval(delayBounce);
-
-  //Init value a first time
-  loop();
 }
 
 void EnemDoubleButton::loop()
