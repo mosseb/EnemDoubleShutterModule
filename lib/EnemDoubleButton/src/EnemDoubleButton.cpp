@@ -163,9 +163,15 @@ bool EnemDoubleButton::isDoublePressed()
   return doublePressed;
 }
 
+void EnemDoubleButton::setUpPressHandler(HandlerFunction newUpPressHandler)
+{
+  upPressHandler = newUpPressHandler;
+}
+
 void EnemDoubleButton::upPress()
 {
   Serial.println(String("upPress"));
+  (*upPressHandler)(this);
 }
 
 void EnemDoubleButton::upRelease()
@@ -173,14 +179,26 @@ void EnemDoubleButton::upRelease()
   Serial.println(String("upRelease"));
 }
 
+void EnemDoubleButton::setUpDoublePressHandler(HandlerFunction newUpDoublePressHandler)
+{
+  upDoublePressHandler = newUpDoublePressHandler;
+}
+
 void EnemDoubleButton::upPressDouble()
 {
   Serial.println(String("upPressDouble"));
+  (*upDoublePressHandler)(this);
+}
+
+void EnemDoubleButton::setDownPressHandler(HandlerFunction newDownPressHandler)
+{
+  downPressHandler = newDownPressHandler;
 }
 
 void EnemDoubleButton::downPress()
 {
   Serial.println(String("downPress"));
+  (*downPressHandler)(this);
 }
 
 void EnemDoubleButton::downRelease()
@@ -188,14 +206,26 @@ void EnemDoubleButton::downRelease()
   Serial.println(String("downRelease"));
 }
 
+void EnemDoubleButton::setDownDoublePressHandler(HandlerFunction newDownDoublePressHandler)
+{
+  downDoublePressHandler = newDownDoublePressHandler;
+}
+
 void EnemDoubleButton::downPressDouble()
 {
   Serial.println(String("downPressDouble"));
+  (*downDoublePressHandler)(this);
+}
+
+void EnemDoubleButton::setStopPressHandler(HandlerFunction newStopPressHandler)
+{
+  stopPressHandler = newStopPressHandler;
 }
 
 void EnemDoubleButton::stopPress()
 {
   Serial.println(String("stopPress"));
+  (*stopPressHandler)(this);
 }
 
 void EnemDoubleButton::stopRelease()
@@ -203,7 +233,13 @@ void EnemDoubleButton::stopRelease()
   Serial.println(String("stopRelease"));
 }
 
+void EnemDoubleButton::setStopDoublePressHandler(HandlerFunction newStopDoublePressHandler)
+{
+  stopDoublePressHandler = newStopDoublePressHandler;
+}
+
 void EnemDoubleButton::stopPressDouble()
 {
   Serial.println(String("stopPressDouble"));
+  (*stopDoublePressHandler)(this);
 }

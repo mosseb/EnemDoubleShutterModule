@@ -3,6 +3,10 @@
 #include <Arduino.h>
 #include <Bounce2.h>
 
+class EnemDoubleButton;
+
+typedef void (*HandlerFunction)(::EnemDoubleButton*);
+
 class EnemDoubleButton
 {
 private:
@@ -41,7 +45,15 @@ private:
   void stopRelease();
   void stopPressDouble();
 
+  HandlerFunction upPressHandler = 0;
+  HandlerFunction downPressHandler = 0;
+  HandlerFunction stopPressHandler = 0;
+
+  HandlerFunction upDoublePressHandler = 0;
+  HandlerFunction downDoublePressHandler = 0;
+  HandlerFunction stopDoublePressHandler = 0;
 public:
+
   EnemDoubleButton(int pinUp, int pinDown, int delayBounce, int delayBoth, int delayDouble);
   void setup();
   void loop();
@@ -49,4 +61,10 @@ public:
   bool isDownPressed(bool dbl=false);
   bool isStopPressed(bool dbl=false);
   bool isDoublePressed();
+  void setUpPressHandler(HandlerFunction newUpPressHandler);
+  void setDownPressHandler(HandlerFunction newDownPressHandler);
+  void setStopPressHandler(HandlerFunction newStopPressHandler);
+  void setUpDoublePressHandler(HandlerFunction newUpDoublePressHandler);
+  void setDownDoublePressHandler(HandlerFunction newDownDoublePressHandler);
+  void setStopDoublePressHandler(HandlerFunction newStopDoublePressHandler);
 };
