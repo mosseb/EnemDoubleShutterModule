@@ -4,31 +4,38 @@
 
 #include <EnemDoubleButton.hpp>
 
-//const int TRANSMIT_INTERVAL = 1;
-const int PIN_UP = D1;
-const int PIN_DOWN = D2;
-const int PIN_SHUTTER1_UPDOWN = D6;
-const int PIN_SHUTTER1_PROCESS = D7;
+const int SHUTTER1_PIN_UP = D1;
+const int SHUTTER1_PIN_DOWN = D2;
+const int SHUTTER1_PIN_UPDOWN = D6;
+const int SHUTTER1_PIN_PROCESS = D7;
 const int SHUTTER1_UPCOURSETIME_SEC = 15000;
 const int SHUTTER1_DOWNCOURSETIME_SEC = 10000;
 const float SHUTTER1_CALIBRATION_RATIO = 0.1;
 
-//unsigned long lastTransmit = 0;
-//bool sensorOpenState = false;
+const int SHUTTER2_PIN_UP = D3;
+const int SHUTTER2_PIN_DOWN = D4;
+const int SHUTTER2_PIN_UPDOWN = D8;
+const int SHUTTER2_PIN_PROCESS = D9;
+const int SHUTTER2_UPCOURSETIME_SEC = 15000;
+const int SHUTTER2_DOWNCOURSETIME_SEC = 10000;
+const float SHUTTER2_CALIBRATION_RATIO = 0.1;
 
-EnemDoubleButton button = EnemDoubleButton(PIN_UP, PIN_DOWN, 60, 100, 1000);
-
-bool lastUpState = false;
-bool lastDownState = false;
-bool lastStopState = false;
-bool lastDoubleState = false;
+EnemDoubleButton button1 = EnemDoubleButton(SHUTTER1_PIN_UP, SHUTTER1_PIN_DOWN, 60, 100, 1000);
+EnemDoubleButton button2 = EnemDoubleButton(SHUTTER2_PIN_UP, SHUTTER2_PIN_DOWN, 60, 100, 1000);
 
 Shutters shutter1;
-byte publishingLevel = ShuttersInternal::LEVEL_NONE;
-unsigned long publishingUpCourseTime = 0;
-unsigned long publishingDownCourseTime = 0;
+Shutters shutter2;
+
+byte publishingLevel1 = ShuttersInternal::LEVEL_NONE;
+unsigned long publishingUpCourseTime1 = 0;
+unsigned long publishingDownCourseTime1 = 0;
+
+byte publishingLevel2 = ShuttersInternal::LEVEL_NONE;
+unsigned long publishingUpCourseTime2 = 0;
+unsigned long publishingDownCourseTime2 = 0;
 
 HomieNode volet1Node("volet1", "volet");
+HomieNode volet2Node("volet2", "volet");
 
 bool positiveIntTryParse(const String& value, unsigned long& out)
 {
@@ -58,8 +65,9 @@ bool volet1upCourseTimeHandler(const HomieRange& range, const String& value)
   unsigned long upCourseTime;
   if(!positiveIntTryParse(value, upCourseTime)) { return false; }
 
-  //Garde fou : plus d'une minute = foutage de gueule
+  //Garde fou : plus d'une minute = foutage de gueule, pas moins de 5 secondes, = foutage de gueule aussi !
   if(upCourseTime > 60000) { return false; }
+  if(upCourseTime < 5000) { return false; }
 
   unsigned long downCourseTime = shutter1.getDownCourseTime();
 
@@ -68,7 +76,7 @@ bool volet1upCourseTimeHandler(const HomieRange& range, const String& value)
     .setCourseTime(upCourseTime, downCourseTime)
     .begin();
 
-  publishingUpCourseTime = upCourseTime;
+  publishingUpCourseTime1 = upCourseTime;
 
   return true;
 }
@@ -78,8 +86,9 @@ bool volet1downCourseTimeHandler(const HomieRange& range, const String& value)
   unsigned long downCourseTime;
   if(!positiveIntTryParse(value, downCourseTime)) { return false; }
 
-  //Garde fou : plus d'une minute = foutage de gueule
+  //Garde fou : plus d'une minute = foutage de gueule, pas moins de 5 secondes, = foutage de gueule aussi !
   if(downCourseTime > 60000) { return false; }
+  if(downCourseTime < 5000) { return false; }
 
   unsigned long upCourseTime = shutter1.getUpCourseTime();
 
@@ -88,7 +97,61 @@ bool volet1downCourseTimeHandler(const HomieRange& range, const String& value)
     .setCourseTime(upCourseTime, downCourseTime)
     .begin();
 
-  publishingDownCourseTime = downCourseTime;
+  publishingDownCourseTime1 = downCourseTime;
+
+  return true;
+}
+
+bool volet2LevelHandler(const HomieRange& range, const String& value)
+{
+  unsigned long level;
+  if(!positiveIntTryParse(value, level)) { return false; }
+
+  if (level > 100) return false;
+
+  shutter2.setLevel(level);
+
+  return true;
+}
+
+bool volet2upCourseTimeHandler(const HomieRange& range, const String& value)
+{
+  unsigned long upCourseTime;
+  if(!positiveIntTryParse(value, upCourseTime)) { return false; }
+
+  //Garde fou : plus d'une minute = foutage de gueule, pas moins de 5 secondes, = foutage de gueule aussi !
+  if(upCourseTime > 60000) { return false; }
+  if(upCourseTime < 5000) { return false; }
+
+  unsigned long downCourseTime = shutter2.getDownCourseTime();
+
+  shutter2
+    .reset()
+    .setCourseTime(upCourseTime, downCourseTime)
+    .begin();
+
+  publishingUpCourseTime2 = upCourseTime;
+
+  return true;
+}
+
+bool volet2downCourseTimeHandler(const HomieRange& range, const String& value)
+{
+  unsigned long downCourseTime;
+  if(!positiveIntTryParse(value, downCourseTime)) { return false; }
+
+  //Garde fou : plus d'une minute = foutage de gueule, pas moins de 5 secondes, = foutage de gueule aussi !
+  if(downCourseTime > 60000) { return false; }
+  if(downCourseTime < 5000) { return false; }
+
+  unsigned long upCourseTime = shutter2.getUpCourseTime();
+
+  shutter2
+    .reset()
+    .setCourseTime(upCourseTime, downCourseTime)
+    .begin();
+
+  publishingDownCourseTime2 = downCourseTime;
 
   return true;
 }
@@ -97,94 +160,205 @@ void onShuttersLevelReached(Shutters* shutters, byte level) {
   Serial.print("Shutters at ");
   Serial.print(level);
   Serial.println("%");
-  publishingLevel = level;
+
+  if(shutters == &shutter1)
+  {
+    publishingLevel1 = level;
+  }
+
+  if(shutters == &shutter2)
+  {
+    publishingLevel2 = level;
+  }
 }
 
-void shuttersOperationHandler(Shutters* s, ShuttersOperation operation) {
+void shuttersOperationHandler(Shutters* shutters, ShuttersOperation operation) {
   switch (operation) {
     case ShuttersOperation::UP:
       Serial.println("Shutters going up.");
-      // TODO: Implement the code for the shutters to go up
-      digitalWrite(PIN_SHUTTER1_UPDOWN, LOW);
-      digitalWrite(PIN_SHUTTER1_PROCESS, LOW);
+      if(shutters == &shutter1)
+      {
+        digitalWrite(SHUTTER1_PIN_UPDOWN, LOW);
+        digitalWrite(SHUTTER1_PIN_PROCESS, LOW);
+      }
+      if(shutters == &shutter2)
+      {
+        digitalWrite(SHUTTER2_PIN_UPDOWN, LOW);
+        digitalWrite(SHUTTER2_PIN_PROCESS, LOW);
+      }
       break;
     case ShuttersOperation::DOWN:
       Serial.println("Shutters going down.");
-      // TODO: Implement the code for the shutters to go down
-      digitalWrite(PIN_SHUTTER1_UPDOWN, HIGH);
-      digitalWrite(PIN_SHUTTER1_PROCESS, LOW);
+      if(shutters == &shutter1)
+      {
+        digitalWrite(SHUTTER1_PIN_UPDOWN, HIGH);
+        digitalWrite(SHUTTER1_PIN_PROCESS, LOW);
+      }
+      if(shutters == &shutter2)
+      {
+        digitalWrite(SHUTTER2_PIN_UPDOWN, HIGH);
+        digitalWrite(SHUTTER2_PIN_PROCESS, LOW);
+      }
       break;
     case ShuttersOperation::HALT:
       Serial.println("Shutters halting.");
-      // TODO: Implement the code for the shutters to halt
-      digitalWrite(PIN_SHUTTER1_PROCESS, HIGH);
+      if(shutters == &shutter1)
+      {
+        digitalWrite(SHUTTER1_PIN_PROCESS, HIGH);
+      }
+      if(shutters == &shutter2)
+      {
+        digitalWrite(SHUTTER2_PIN_PROCESS, HIGH);
+      }
       break;
   }
 }
 
 void readInEeprom(char* dest, byte length, Shutters* shutters) {
+  int offset = 0;
+
+  if(shutters == &shutter1)
+  {
+    offset = 0;
+  }
+
+  if(shutters == &shutter2)
+  {
+    offset = length;
+  }
+
   for (byte i = 0; i < length; i++) {
-    //TODO remplacer 0 par le rang du volet * taille de la struct
-    dest[i] = EEPROM.read(0 + i);
+    dest[i] = EEPROM.read(offset + i);
   }
 }
 
 void shuttersWriteStateHandler(Shutters* shutters, const char* state, byte length) {
+  int offset = 0;
+
+  if(shutters == &shutter1)
+  {
+    offset = 0;
+  }
+
+  if(shutters == &shutter2)
+  {
+    offset = length;
+  }
+
   for (byte i = 0; i < length; i++) {
-    //TODO remplacer 0 par le rang du volet * taille de la struct
-    EEPROM.write(0 + i, state[i]);
+    EEPROM.write(offset + i, state[i]);
     EEPROM.commit();
   }
 }
 
 void loopHandler() {
-  if(publishingLevel != ShuttersInternal::LEVEL_NONE)
+  if(publishingLevel1 != ShuttersInternal::LEVEL_NONE)
   {
-    volet1Node.setProperty("level").send(String(publishingLevel));
-    publishingLevel = ShuttersInternal::LEVEL_NONE;
+    volet1Node.setProperty("level").send(String(publishingLevel1));
+    publishingLevel1 = ShuttersInternal::LEVEL_NONE;
   }
 
-  if(publishingUpCourseTime != 0)
+  if(publishingUpCourseTime1 != 0)
   {
-    volet1Node.setProperty("upCourseTime").send(String(publishingUpCourseTime));
-    publishingUpCourseTime = 0;
+    volet1Node.setProperty("upCourseTime").send(String(publishingUpCourseTime1));
+    publishingUpCourseTime1 = 0;
   }
 
-  if(publishingDownCourseTime != 0)
+  if(publishingDownCourseTime1 != 0)
   {
-    volet1Node.setProperty("downCourseTime").send(String(publishingDownCourseTime));
-    publishingDownCourseTime = 0;
+    volet1Node.setProperty("downCourseTime").send(String(publishingDownCourseTime1));
+    publishingDownCourseTime1 = 0;
+  }
+
+  if(publishingLevel2 != ShuttersInternal::LEVEL_NONE)
+  {
+    volet2Node.setProperty("level").send(String(publishingLevel2));
+    publishingLevel2 = ShuttersInternal::LEVEL_NONE;
+  }
+
+  if(publishingUpCourseTime2 != 0)
+  {
+    volet2Node.setProperty("upCourseTime").send(String(publishingUpCourseTime2));
+    publishingUpCourseTime2 = 0;
+  }
+
+  if(publishingDownCourseTime2 != 0)
+  {
+    volet2Node.setProperty("downCourseTime").send(String(publishingDownCourseTime2));
+    publishingDownCourseTime2 = 0;
   }
 }
 
 void upPressed(EnemDoubleButton* button)
 {
-  shutter1.setLevel(0);
+  if(button == &button1)
+  {
+    shutter1.setLevel(0);
+  }
+  if(button == &button2)
+  {
+    shutter2.setLevel(0);
+  }
 }
 
 void downPressed(EnemDoubleButton* button)
 {
-  shutter1.setLevel(100);
+  if(button == &button1)
+  {
+    shutter1.setLevel(100);
+  }
+  if(button == &button2)
+  {
+    shutter2.setLevel(100);
+  }
 }
 
 void stopPressed(EnemDoubleButton* button)
 {
-  shutter1.stop();
+  if(button == &button1)
+  {
+    shutter1.stop();
+  }
+  if(button == &button2)
+  {
+    shutter2.stop();
+  }
 }
 
 void upDoublePressed(EnemDoubleButton* button)
 {
-  volet1Node.setProperty("externalUpCommand").send("1");
+  if(button == &button1)
+  {
+    volet1Node.setProperty("externalUpCommand").send("1");
+  }
+  if(button == &button2)
+  {
+    volet2Node.setProperty("externalUpCommand").send("1");
+  }
 }
 
 void downDoublePressed(EnemDoubleButton* button)
 {
-  volet1Node.setProperty("externalDownCommand").send("1");
+  if(button == &button1)
+  {
+    volet1Node.setProperty("externalDownCommand").send("1");
+  }
+  if(button == &button2)
+  {
+    volet2Node.setProperty("externalDownCommand").send("1");
+  }
 }
 
 void stopDoublePressed(EnemDoubleButton* button)
 {
-  volet1Node.setProperty("externalStopCommand").send("1");
+  if(button == &button1)
+  {
+    volet1Node.setProperty("externalStopCommand").send("1");
+  }
+  if(button == &button2)
+  {
+    volet2Node.setProperty("externalStopCommand").send("1");
+  }
 }
 
 void setup()
@@ -214,77 +388,103 @@ void setup()
 
   if(shutter1.getUpCourseTime() == 0)
   {
-    publishingUpCourseTime = SHUTTER1_UPCOURSETIME_SEC;
+    publishingUpCourseTime1 = SHUTTER1_UPCOURSETIME_SEC;
+  }
+  else
+  {
+    publishingUpCourseTime1 = shutter1.getUpCourseTime();
   }
 
   if(shutter1.getDownCourseTime() == 0)
   {
-    publishingDownCourseTime = SHUTTER1_DOWNCOURSETIME_SEC;
+    publishingDownCourseTime1 = SHUTTER1_DOWNCOURSETIME_SEC;
+  }
+  else
+  {
+    publishingDownCourseTime1 = shutter1.getDownCourseTime();
   }
 
   shutter1
-    .setCourseTime(publishingUpCourseTime, publishingDownCourseTime)
+    .setCourseTime(publishingUpCourseTime1, publishingDownCourseTime1)
     .setCalibrationRatio(SHUTTER1_CALIBRATION_RATIO)
     .onLevelReached(onShuttersLevelReached)
     .begin();
 
-  button.setup();
+  button1.setup();
 
-  button.setUpPressHandler(&upPressed);
-  button.setDownPressHandler(&downPressed);
-  button.setStopPressHandler(&stopPressed);
-  button.setUpDoublePressHandler(&upDoublePressed);
-  button.setDownDoublePressHandler(&downDoublePressed);
-  button.setStopDoublePressHandler(&stopDoublePressed);
+  button1.setUpPressHandler(&upPressed);
+  button1.setDownPressHandler(&downPressed);
+  button1.setStopPressHandler(&stopPressed);
+  button1.setUpDoublePressHandler(&upDoublePressed);
+  button1.setDownDoublePressHandler(&downDoublePressed);
+  button1.setStopDoublePressHandler(&stopDoublePressed);
 
-  digitalWrite(PIN_SHUTTER1_UPDOWN, HIGH);
-  digitalWrite(PIN_SHUTTER1_PROCESS, HIGH);
+  digitalWrite(SHUTTER1_PIN_UPDOWN, HIGH);
+  digitalWrite(SHUTTER1_PIN_PROCESS, HIGH);
 
-  pinMode(PIN_SHUTTER1_UPDOWN,OUTPUT);
-  pinMode(PIN_SHUTTER1_PROCESS,OUTPUT);
+  pinMode(SHUTTER1_PIN_UPDOWN,OUTPUT);
+  pinMode(SHUTTER1_PIN_PROCESS,OUTPUT);
 
-  //shutter.setup();
+  volet2Node.advertise("level").settable(volet2LevelHandler);
+  volet2Node.advertise("upCourseTime").settable(volet2upCourseTimeHandler);
+  volet2Node.advertise("downCourseTime").settable(volet2downCourseTimeHandler);
+  volet2Node.advertise("externalUpCommand");
+  volet2Node.advertise("externalDownCommand");
+  volet2Node.advertise("externalStopCommand");
+
+  readInEeprom(storedShuttersState, shutter2.getStateLength(), &shutter2);
+
+  shutter2
+    .setOperationHandler(shuttersOperationHandler)
+    .setWriteStateHandler(shuttersWriteStateHandler)
+    .restoreState(storedShuttersState);
+
+  if(shutter2.getUpCourseTime() == 0)
+  {
+    publishingUpCourseTime2 = SHUTTER2_UPCOURSETIME_SEC;
+  }
+  else
+  {
+    publishingUpCourseTime2 = shutter2.getUpCourseTime();
+  }
+
+  if(shutter2.getDownCourseTime() == 0)
+  {
+    publishingDownCourseTime2 = SHUTTER2_DOWNCOURSETIME_SEC;
+  }
+  else
+  {
+    publishingDownCourseTime2 = shutter2.getDownCourseTime();
+  }
+
+  shutter2
+    .setCourseTime(publishingUpCourseTime2, publishingDownCourseTime2)
+    .setCalibrationRatio(SHUTTER2_CALIBRATION_RATIO)
+    .onLevelReached(onShuttersLevelReached)
+    .begin();
+
+  button2.setup();
+
+  button2.setUpPressHandler(&upPressed);
+  button2.setDownPressHandler(&downPressed);
+  button2.setStopPressHandler(&stopPressed);
+  button2.setUpDoublePressHandler(&upDoublePressed);
+  button2.setDownDoublePressHandler(&downDoublePressed);
+  button2.setStopDoublePressHandler(&stopDoublePressed);
+
+  digitalWrite(SHUTTER2_PIN_UPDOWN, HIGH);
+  digitalWrite(SHUTTER2_PIN_PROCESS, HIGH);
+
+  pinMode(SHUTTER2_PIN_UPDOWN,OUTPUT);
+  pinMode(SHUTTER2_PIN_PROCESS,OUTPUT);
 }
 
 void HomieIndependentLoop()
 {
-  button.loop();
+  button1.loop();
   shutter1.loop();
-/*
-  bool upState = button.isUpPressed();
-  bool downState = button.isDownPressed();
-  bool stopState = button.isStopPressed();
-  bool doubleState = button.isDoublePressed();
-
-  if(upState != lastUpState || downState != lastDownState || stopState != lastStopState || doubleState != lastDoubleState)
-  {
-    //Homie.getLogger() << millis() << ": up[" << upState << "] - down[" << downState << "] - stop[" << stopState
-//      << "] - double[" << doubleState << "]" << endl;
-
-    if(upState && !lastUpState)
-    {
-      //Homie.getLogger() << "Shutter1 consigne 0" << endl;
-      shutter1.setLevel(0);
-    }
-
-    if(downState && !lastDownState)
-    {
-      //Homie.getLogger() << "Shutter1 consigne 100" << endl;
-      shutter1.setLevel(100);
-    }
-
-    if(stopState && !lastStopState)
-    {
-      //Homie.getLogger() << "Shutter1 stop" << endl;
-      shutter1.stop();
-    }
-
-    lastUpState = upState;
-    lastDownState = downState;
-    lastStopState = stopState;
-    lastDoubleState = doubleState;
-  }
-  */
+  button2.loop();
+  shutter2.loop();
 }
 
 void loop() {
