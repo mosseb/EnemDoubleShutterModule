@@ -1,4 +1,4 @@
-update=29/04/2018 21:25:17
+update=02/05/2018 00:48:57
 version=1
 last_client=kicad
 [pcbnew]
@@ -27,7 +27,7 @@ NetIExt=net
 version=1
 [eeschema]
 version=1
-LibDir=
+LibDir=../enemLib;../kicad-lib
 [eeschema/libraries]
 LibName1=power
 LibName2=device
@@ -61,5 +61,3 @@ LibName29=opto
 LibName30=atmel
 LibName31=contrib
 LibName32=valves
-LibName33=D:/Domotique/kicad/kicad-lib-master/nodemcu
-LibName34=D:/Domotique/kicad/enemLib/enem
