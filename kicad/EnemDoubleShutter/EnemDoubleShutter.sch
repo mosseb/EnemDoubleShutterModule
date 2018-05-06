@@ -126,10 +126,10 @@ F 3 "" H 3700 3950 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Conn_01x02 J1
+L Conn_01x02 J0
 U 1 1 5AE61E8A
 P 2350 3350
-F 0 "J1" H 2350 3450 50  0000 C CNN
+F 0 "J0" H 2350 3450 50  0000 C CNN
 F 1 "Conn_01x02" H 2350 3150 50  0000 C CNN
 F 2 "enemLib:Bornier2" H 2350 3350 50  0001 C CNN
 F 3 "" H 2350 3350 50  0001 C CNN
@@ -159,10 +159,10 @@ F 3 "" H 3750 3350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 2RelaysModule Relay1
+L 2RelaysModule ShutterRelay1
 U 1 1 5AE6251D
 P 7050 2800
-F 0 "Relay1" H 7050 3300 60  0000 C CNN
+F 0 "ShutterRelay1" H 7050 3300 60  0000 C CNN
 F 1 "2RelaysModule" H 7050 2800 60  0000 C CNN
 F 2 "enemLib:relayModule" H 7050 3300 60  0001 C CNN
 F 3 "" H 7050 3300 60  0001 C CNN
@@ -231,10 +231,10 @@ NoConn ~ 7950 2900
 NoConn ~ 7950 3000
 NoConn ~ 7950 3100
 $Comp
-L Conn_01x03 J2
+L Conn_01x03 J1
 U 1 1 5AE62F81
 P 6650 3750
-F 0 "J2" H 6650 3950 50  0000 C CNN
+F 0 "J1" H 6650 3950 50  0000 C CNN
 F 1 "Bouton 1" H 6650 3550 50  0000 C CNN
 F 2 "enemLib:Bornier3" H 6650 3750 50  0001 C CNN
 F 3 "" H 6650 3750 50  0001 C CNN
@@ -253,10 +253,10 @@ F 3 "" H 6350 3650 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L 2RelaysModule Relay2
+L 2RelaysModule ShutterRelay2
 U 1 1 5AE8BB79
 P 8450 4050
-F 0 "Relay2" H 8450 4550 60  0000 C CNN
+F 0 "ShutterRelay2" H 8450 4550 60  0000 C CNN
 F 1 "2RelaysModule" H 8450 4050 60  0000 C CNN
 F 2 "enemLib:relayModule" H 8450 4550 60  0001 C CNN
 F 3 "" H 8450 4550 60  0001 C CNN
@@ -288,12 +288,12 @@ $EndComp
 $Comp
 L +5V #PWR016
 U 1 1 5AE8BC15
-P 7000 3950
-F 0 "#PWR016" H 7000 3800 50  0001 C CNN
-F 1 "+5V" H 7000 4090 50  0000 C CNN
-F 2 "" H 7000 3950 50  0001 C CNN
-F 3 "" H 7000 3950 50  0001 C CNN
-	1    7000 3950
+P 7050 3950
+F 0 "#PWR016" H 7050 3800 50  0001 C CNN
+F 1 "+5V" H 7050 4090 50  0000 C CNN
+F 2 "" H 7050 3950 50  0001 C CNN
+F 3 "" H 7050 3950 50  0001 C CNN
+	1    7050 3950
 	1    0    0    -1  
 $EndComp
 NoConn ~ 9350 3750
@@ -303,10 +303,10 @@ NoConn ~ 9350 4150
 NoConn ~ 9350 4250
 NoConn ~ 9350 4350
 $Comp
-L Conn_01x03 J3
+L Conn_01x03 J2
 U 1 1 5AE8C308
 P 7200 4600
-F 0 "J3" H 7200 4800 50  0000 C CNN
+F 0 "J2" H 7200 4800 50  0000 C CNN
 F 1 "Bouton 2" H 7200 4400 50  0000 C CNN
 F 2 "enemLib:Bornier3" H 7200 4600 50  0001 C CNN
 F 3 "" H 7200 4600 50  0001 C CNN
@@ -325,10 +325,10 @@ F 3 "" H 6900 4500 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L NodeMCU_Amica_R2 U1
+L NodeMCU_Amica_R2 nodeMCU1
 U 1 1 5AE34C07
 P 5350 4150
-F 0 "U1" H 5350 4950 50  0000 C CNN
+F 0 "nodeMCU1" H 5350 4950 50  0000 C CNN
 F 1 "NodeMCU_Amica_R2" H 5350 3300 50  0000 C CNN
 F 2 "enemLib:NodeMCU_simple" H 5600 4150 50  0001 C CNN
 F 3 "" H 5600 4150 50  0000 C CNN
@@ -359,7 +359,7 @@ Wire Wire Line
 Wire Wire Line
 	7200 3850 7550 3850
 Wire Wire Line
-	7000 3950 7550 3950
+	7050 3950 7550 3950
 Wire Wire Line
 	5900 3000 5900 3550
 Wire Wire Line
@@ -461,4 +461,48 @@ $EndComp
 Wire Wire Line
 	4800 4750 4900 4750
 NoConn ~ 5800 4850
+Wire Notes Line
+	8350 3000 8000 3000
+Wire Notes Line
+	8000 3100 8250 3100
+Wire Notes Line
+	8250 3100 8250 2600
+Wire Notes Line
+	8250 2600 8000 2600
+Wire Notes Line
+	8000 2700 8350 2700
+Wire Notes Line
+	8000 2500 8350 2500
+Text Notes 8400 2550 0    60   ~ 0
+Shutter 1 Line (OUT-DOWN)
+Text Notes 8400 2750 0    60   ~ 0
+Shutter 1 Line (OUT-UP)
+Wire Notes Line
+	9400 4250 9750 4250
+Wire Notes Line
+	9400 4350 9650 4350
+Wire Notes Line
+	9650 4350 9650 3850
+Wire Notes Line
+	9650 3850 9400 3850
+Wire Notes Line
+	9400 3950 9750 3950
+Wire Notes Line
+	9400 3750 9750 3750
+Text Notes 8400 3050 0    60   ~ 0
+Shutter 1 Line (IN)
+Text Notes 7250 4650 0    39   ~ 0
+UP
+Text Notes 7250 4750 0    39   ~ 0
+DOWN
+Text Notes 6700 3800 0    39   ~ 0
+UP
+Text Notes 6700 3900 0    39   ~ 0
+DOWN
+Text Notes 9800 4300 0    60   ~ 0
+Shutter 2 Line (IN)
+Text Notes 9800 4000 0    60   ~ 0
+Shutter 2 Line (OUT-UP)
+Text Notes 9800 3800 0    60   ~ 0
+Shutter 2 Line (OUT-DOWN)
 $EndSCHEMATC
