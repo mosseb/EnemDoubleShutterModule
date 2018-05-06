@@ -1,4 +1,4 @@
-update=02/05/2018 00:48:57
+update=06/05/2018 15:00:43
 version=1
 last_client=kicad
 [pcbnew]
@@ -61,3 +61,5 @@ LibName29=opto
 LibName30=atmel
 LibName31=contrib
 LibName32=valves
+LibName33=enem
+LibName34=nodemcu
