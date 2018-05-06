@@ -4,18 +4,18 @@
 
 #include <EnemDoubleButton.hpp>
 
-const int SHUTTER1_PIN_UP = D1;
-const int SHUTTER1_PIN_DOWN = D2;
-const int SHUTTER1_PIN_UPDOWN = D6;
-const int SHUTTER1_PIN_PROCESS = D7;
+const int SHUTTER1_PIN_UP = D3; // Up button commmand
+const int SHUTTER1_PIN_DOWN = D4; // Down button command
+const int SHUTTER1_PIN_UPDOWN = D1; // Up or Down selection : IN1 relay
+const int SHUTTER1_PIN_PROCESS = D2; // Start or Stop control : IN2 relay
 const int SHUTTER1_UPCOURSETIME_SEC = 15000;
 const int SHUTTER1_DOWNCOURSETIME_SEC = 10000;
 const float SHUTTER1_CALIBRATION_RATIO = 0.1;
 
-const int SHUTTER2_PIN_UP = D3;
-const int SHUTTER2_PIN_DOWN = D4;
-const int SHUTTER2_PIN_UPDOWN = D8;
-const int SHUTTER2_PIN_PROCESS = D9;
+const int SHUTTER2_PIN_UP = D7; // Up button commmand
+const int SHUTTER2_PIN_DOWN = D8; // Down button command
+const int SHUTTER2_PIN_UPDOWN = D5; // Up or Down selection : IN1 relay
+const int SHUTTER2_PIN_PROCESS = D6; // Start or Stop control : IN2 relay
 const int SHUTTER2_UPCOURSETIME_SEC = 15000;
 const int SHUTTER2_DOWNCOURSETIME_SEC = 10000;
 const float SHUTTER2_CALIBRATION_RATIO = 0.1;
